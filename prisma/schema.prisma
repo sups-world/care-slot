@@ -1,0 +1,68 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  CLIENT
+  PROVIDER
+}
+
+enum BookingStatus {
+  ACTIVE
+  CANCELLED
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  role      Role     @default(CLIENT)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  slots     Slot[]     // only for PROVIDER
+  bookings  Booking[]  // only for CLIENT
+
+  @@map("users")
+}
+
+model Slot {
+  id         String   @id @default(cuid())
+  providerId String
+  startTime  DateTime // always store in UTC
+  endTime    DateTime // always store in UTC
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  provider   User     @relation(fields: [providerId], references: [id])
+  booking    Booking? // one-to-one for active booking (or null)
+
+  @@index([providerId, startTime])
+  @@map("slots")
+}
+
+model Booking {
+  id        String        @id @default(cuid())
+  slotId    String        @unique   // ← critical for concurrency safety
+  clientId  String
+  status    BookingStatus @default(ACTIVE)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  slot      Slot          @relation(fields: [slotId], references: [id])
+  client    User          @relation(fields: [clientId], references: [id])
+
+  @@index([clientId])
+  @@map("bookings")
+}
