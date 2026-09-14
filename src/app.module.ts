@@ -9,6 +9,7 @@ import { AuthController } from './auth/auth.controller.js';
 import { AuthService } from './auth/auth.service.js';
 import { AuthModule } from './auth/auth.module.js';
 import { SlotsModule } from './slots/slots.module.js';
+import { BookingsModule } from './bookings/bookings.module.js';
 
 export const { ObserveModule, ObserveInstrument } = createObserveModule();
 
@@ -24,7 +25,8 @@ export const { ObserveModule, ObserveInstrument } = createObserveModule();
     PrismaModule,
     UsersModule,
     AuthModule,
-    SlotsModule
+    SlotsModule,
+    BookingsModule
   ],
   controllers: [AppController],
   providers: [AppService],

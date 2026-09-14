@@ -32,4 +32,32 @@ export class SlotsService {
       },
     });
   }
+
+  async findAvailableByProvider(
+    providerId: string,
+    from?: string,
+    to?: string,
+  ) {
+    const where: any = {
+      providerId,
+      booking: null, // only slots that are not booked
+    };
+
+    if (from || to) {
+      where.startTime = {};
+      if (from) where.startTime.gte = new Date(from);
+      if (to) where.startTime.lte = new Date(to);
+    }
+
+    return this.prisma.slot.findMany({
+      where,
+      orderBy: { startTime: 'asc' },
+      select: {
+        id: true,
+        startTime: true,
+        endTime: true,
+        providerId: true,
+      },
+    });
+  }
 }
